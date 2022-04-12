@@ -30,7 +30,7 @@ function Home({ navigation }) {
   const getMovies = async () => {
     try {
       const response = await fetch(
-        'https://randomuser.me/api/?page=3&results=10'
+        'https://randomuser.me/api/?page=2&results=10'
       );
       const json = await response.json();
       setRefreshing(false);
@@ -118,7 +118,7 @@ export const DetailsScreen = ({ route, navigation }) => {
       </View>
       <View style={{ flexDirection: 'column', width: '100%', marginLeft: 20 }}>
         <View style={styles.horizontalline} />
-        <Text style={{ fontWeight: 'bold', fontSize:16 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
           {item?.name.first} {item?.name.last}, {item?.dob.age}
           {'\n'}
           {'\n'}
@@ -129,7 +129,7 @@ export const DetailsScreen = ({ route, navigation }) => {
           {'\n'}Country: {item?.location.country}
         </Text>
         <View style={styles.horizontalline} />
-        <Text style={{ fontWeight: 'bold', fontSize:16 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
           Address
           {'\n'}
           {'\n'}
