@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -19,22 +19,39 @@ function Home({ navigation }) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [refreshing, setRefreshing] = useState(true);
+  const [page, setpage] = useState(1);
 
-  const onRefresh = () => {
-    //Clear old data of the list
-    setData([]);
-    //Call the Service to get the latest data
-    getMovies();
+  const endReached = () => {
+    if (isLoading) {
+      return;
+    }
+    setpage(page + 1);
   };
 
-  const getMovies = async () => {
+  const renderFooter = () => {
+    if (isLoading) return null;
+    return (
+      <ActivityIndicator
+        style={{ color: 'black' }}
+      />
+    );
+  };
+
+  const onRefresh = () => {
+    //Clear old data of the list ds
+    setData([]);
+    //Call the Service to get the latest data
+    getData();
+  };
+
+  const getData = async () => {
     try {
       const response = await fetch(
-        'https://randomuser.me/api/?page=2&results=10'
+        'https://randomuser.me/api/?results=10&seed=abc&page=' + page
       );
       const json = await response.json();
       setRefreshing(false);
-      setData(json.results);
+      setData([...data, ...json.results]);
     } catch (error) {
       console.error(error);
     } finally {
@@ -42,9 +59,7 @@ function Home({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    getMovies();
-  }, []);
+  useEffect(getData, [page]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -63,6 +78,9 @@ function Home({ navigation }) {
       ) : (
         <FlatList
           data={data}
+          onEndReachedThreshold={0}
+          onEndReached={endReached}
+          ListFooterComponent={renderFooter}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
             <ListItem
@@ -87,11 +105,7 @@ function Home({ navigation }) {
             </ListItem>
           )}
           refreshControl={
-            <RefreshControl
-              //refresh control used for the Pull to Refresh
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
       )}
@@ -121,7 +135,6 @@ export const DetailsScreen = ({ route, navigation }) => {
         <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
           {item?.name.first} {item?.name.last}, {item?.dob.age}
           {'\n'}
-          {'\n'}
         </Text>
         <Text style={{ lineHeight: 24 }}>
           Phone: {item?.cell}
@@ -131,7 +144,6 @@ export const DetailsScreen = ({ route, navigation }) => {
         <View style={styles.horizontalline} />
         <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
           Address
-          {'\n'}
           {'\n'}
         </Text>
         <Text style={{ lineHeight: 24 }}>
